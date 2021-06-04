@@ -1,13 +1,5 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { ObjectType } from '@nestjs/graphql';
+import { CompanyRaw } from './dto/company.raw';
 
-@ObjectType('Company')
-
-// using assertions (!) on fields to ignore issues with having no constructor
-// see https://github.com/nestjs/nest/issues/4178#issuecomment-613197634
-export class Company {
-  @Field(() => ID)
-  id!: number;
-
-  @Field()
-  title!: string;
-}
+@ObjectType()
+export class Company extends CompanyRaw {}

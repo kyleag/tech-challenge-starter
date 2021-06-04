@@ -1,13 +1,24 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { CompanyService } from '@src/company/company.service';
+import { EmployeeRaw } from './dto/employee.raw';
 import { Employee } from './employee.model';
 import { EmployeeService } from './employee.service';
 
-@Resolver('Employee')
+@Resolver(() => Employee)
 export class EmployeeResolver {
-  constructor(private readonly employeeService: EmployeeService) {}
+  constructor(
+    private readonly employeeService: EmployeeService,
+    private readonly companyService: CompanyService,
+  ) {}
 
   @Query(() => [Employee])
   employees(): Employee[] {
     return this.employeeService.getAll();
+  }
+
+  @ResolveField('company')
+  company(@Parent() employee: EmployeeRaw) {
+    const { companyId } = employee;
+    return this.companyService.getById(companyId);
   }
 }

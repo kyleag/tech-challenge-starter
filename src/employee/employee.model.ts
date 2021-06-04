@@ -1,15 +1,9 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { BaseModel } from '@src/common/models/base.model';
+import { Field, ObjectType, OmitType } from '@nestjs/graphql';
 import { Company } from '../company/company.model';
+import { EmployeeRaw } from './dto/employee.raw';
 
 @ObjectType('Employee')
-export class Employee extends BaseModel {
-  @Field()
-  name!: string;
-
-  @Field()
-  budget!: number;
-
+export class Employee extends OmitType(EmployeeRaw, ['companyId'] as const) {
   @Field(() => Company)
   company!: Company;
 }
