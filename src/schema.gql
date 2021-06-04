@@ -14,9 +14,15 @@ type Employee {
   company: Company!
 }
 
+type Partner {
+  id: ID!
+  name: String!
+}
+
 type Query {
   """App info."""
   appInfo: String!
   companies: [Company!]!
   employees: [Employee!]!
+  partners: [Partner!]!
 }
