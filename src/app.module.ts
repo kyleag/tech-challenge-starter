@@ -4,7 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 
 import { AppResolver } from '@src/app.resolver';
 import { CompanyModule } from './company/company.module';
-import { EmployeeModule } from './employee/company.module';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
