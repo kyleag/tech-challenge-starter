@@ -7,8 +7,16 @@ type Company {
   title: String!
 }
 
+type Employee {
+  id: ID!
+  name: String!
+  budget: Float!
+  company: Company!
+}
+
 type Query {
   """App info."""
   appInfo: String!
   companies: [Company!]!
+  employees: [Employee!]!
 }

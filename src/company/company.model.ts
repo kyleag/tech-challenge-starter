@@ -1,6 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-@ObjectType()
+@ObjectType('Company')
 
 // using assertions (!) on fields to ignore issues with having no constructor
 // see https://github.com/nestjs/nest/issues/4178#issuecomment-613197634
