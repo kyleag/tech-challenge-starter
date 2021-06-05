@@ -19,10 +19,17 @@ type Partner {
   name: String!
 }
 
+type Voucher {
+  id: ID!
+  amount: Float!
+  partner: Partner!
+}
+
 type Query {
   """App info."""
   appInfo: String!
   companies: [Company!]!
   employees: [Employee!]!
   partners: [Partner!]!
+  vouchers: [Voucher!]!
 }

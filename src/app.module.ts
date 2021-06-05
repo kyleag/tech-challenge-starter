@@ -6,12 +6,14 @@ import { AppResolver } from '@src/app.resolver';
 import { CompanyModule } from './company/company.module';
 import { EmployeeModule } from './employee/employee.module';
 import { PartnerModule } from './partner/partner.module';
+import { VoucherModule } from './voucher/voucher.module';
 
 @Module({
   imports: [
     CompanyModule,
     EmployeeModule,
     PartnerModule,
+    VoucherModule,
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),

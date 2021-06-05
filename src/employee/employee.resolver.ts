@@ -1,4 +1,5 @@
 import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Company } from '@src/company/company.model';
 import { CompanyService } from '@src/company/company.service';
 import { EmployeeRaw } from './dto/employee.raw';
 import { Employee } from './employee.model';
@@ -17,7 +18,7 @@ export class EmployeeResolver {
   }
 
   @ResolveField('company')
-  company(@Parent() employee: EmployeeRaw) {
+  company(@Parent() employee: EmployeeRaw): Company {
     const { companyId } = employee;
     return this.companyService.getById(companyId);
   }
