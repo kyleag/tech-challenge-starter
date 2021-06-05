@@ -25,6 +25,18 @@ type Voucher {
   partner: Partner!
 }
 
+type Order {
+  id: ID!
+  date: DateTime!
+  employee: Employee!
+  voucher: Voucher!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
   """App info."""
   appInfo: String!
@@ -32,4 +44,5 @@ type Query {
   employees: [Employee!]!
   partners: [Partner!]!
   vouchers: [Voucher!]!
+  orders: [Order!]!
 }

@@ -7,6 +7,7 @@ import { CompanyModule } from './company/company.module';
 import { EmployeeModule } from './employee/employee.module';
 import { PartnerModule } from './partner/partner.module';
 import { VoucherModule } from './voucher/voucher.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { VoucherModule } from './voucher/voucher.module';
     EmployeeModule,
     PartnerModule,
     VoucherModule,
+    OrderModule,
     GraphQLModule.forRoot({
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
