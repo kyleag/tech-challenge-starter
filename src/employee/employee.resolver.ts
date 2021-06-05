@@ -1,7 +1,6 @@
 import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { Company } from '@src/company/company.model';
 import { CompanyService } from '@src/company/company.service';
-import { EmployeeRaw } from './dto/employee.raw';
 import { Employee } from './employee.model';
 import { EmployeeService } from './employee.service';
 
@@ -14,12 +13,14 @@ export class EmployeeResolver {
 
   @Query(() => [Employee])
   employees(): Employee[] {
-    return this.employeeService.getAll();
-  }
-
-  @ResolveField('company')
-  company(@Parent() employee: EmployeeRaw): Company {
-    const { companyId } = employee;
-    return this.companyService.getById(companyId);
+    return this.employeeService.getAll().map(({ companyId, ...employee }) => {
+      return {
+        ...employee,
+        // @TODO - use `ResolveField`?
+        // doing this since testing this method *DOES NOT* automatically resolve the fields that need to be resolved
+        // and it seems like the `ResolveField` only works when doing an actual graphql query
+        company: this.companyService.getById(companyId),
+      } as Employee;
+    });
   }
 }

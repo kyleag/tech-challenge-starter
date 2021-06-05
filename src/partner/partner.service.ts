@@ -1,10 +1,10 @@
 import partners from '@data/partners';
 import { Injectable } from '@nestjs/common';
 import FileSourceDatabaseService from '@src/common/services/database/file-source.service';
-import { Partner } from './partner.model';
+import { PartnerRaw } from './dto/partner.raw';
 
 @Injectable()
-export class PartnerService extends FileSourceDatabaseService<Partner> {
+export class PartnerService extends FileSourceDatabaseService<PartnerRaw> {
   constructor() {
     super(partners);
   }

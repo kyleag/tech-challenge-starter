@@ -14,12 +14,14 @@ export class VoucherResolver {
 
   @Query(() => [Voucher])
   vouchers(): Voucher[] {
-    return this.voucherService.getAll();
-  }
-
-  @ResolveField('partner')
-  partner(@Parent() voucher: VoucherRaw): Partner {
-    const { partnerId } = voucher;
-    return this.partnerService.getById(partnerId);
+    return this.voucherService.getAll().map(({ partnerId, ...voucher }) => {
+      return {
+        ...voucher,
+        // @TODO - use `ResolveField`?
+        // doing this since testing this method *DOES NOT* automatically resolve the fields that need to be resolved
+        // and it seems like the `ResolveField` only works when doing an actual graphql query
+        partner: this.partnerService.getById(partnerId),
+      };
+    });
   }
 }

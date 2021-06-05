@@ -8,6 +8,6 @@ export class CompanyResolver {
 
   @Query(() => [Company])
   companies(): Company[] {
-    return this.companyService.getAll();
+    return this.companyService.getAll() as Company[];
   }
 }

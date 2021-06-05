@@ -8,6 +8,6 @@ export class PartnerResolver {
 
   @Query(() => [Partner])
   partners(): Partner[] {
-    return this.partnerService.getAll();
+    return this.partnerService.getAll() as Partner[];
   }
 }
