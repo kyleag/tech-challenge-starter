@@ -7,13 +7,6 @@ type Company {
   title: String!
 }
 
-type Employee {
-  id: ID!
-  name: String!
-  budget: Float!
-  company: Company!
-}
-
 type Partner {
   id: ID!
   name: String!
@@ -37,12 +30,20 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Employee {
+  id: ID!
+  name: String!
+  budget: Float!
+  company: Company!
+  orders: [Order!]!
+}
+
 type Query {
   """App info."""
   appInfo: String!
   companies: [Company!]!
   employees: [Employee!]!
-  partners: [Partner!]!
-  vouchers: [Voucher!]!
   orders: [Order!]!
+  vouchers: [Voucher!]!
+  partners: [Partner!]!
 }
