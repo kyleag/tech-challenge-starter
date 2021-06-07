@@ -6,9 +6,33 @@ import { BaseModel } from '@src/common/models/base.model';
 export default abstract class FileSourceDatabaseService<Raw extends BaseModel> {
   constructor(protected records: Raw[]) {}
 
-  getAll(): Raw[] {
-    return [...this.records] as Raw[];
+  /**
+   * Gets all of the raw objects from the source data based on the given filter
+   * @param { Partial<{ [key in keyof Raw]: any } } filters optional filters. must be a valid raw model field
+   * @returns {Raw[]} resulting list of raw model data
+   */
+  getAll(filters: Partial<{ [key in keyof Raw]: any }> = {}): Raw[] {
+    const results = [...this.records] as Raw[];
+    if (Object.keys(filters).length <= 0) {
+      return results;
+    }
+
+    // filter results based on the provided criteria
+    // for now, we will just check for direct equality
+    // @TODO - add support for callback functions
+    // @TODO - add support for arrays
+    return results.filter((result) => {
+      return Object.keys(filters).every((field) => {
+        return result[field as keyof Raw] === filters[field as keyof Raw];
+      });
+    });
   }
+
+  /**
+   * Gets a raw model by id
+   * @param {number} id id of the raw model to retrieve
+   * @returns {Raw} resulting model
+   */
   getById(id: number): Raw {
     const match = this.records.find((record) => record.id === id);
     if (!match) {

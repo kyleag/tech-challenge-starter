@@ -22,9 +22,9 @@ export class OrderResolver {
   ) {}
 
   @Query(() => [Order])
-  orders(): Order[] {
+  orders(filters: Partial<OrderRaw> = {}): Order[] {
     return this.orderService
-      .getAll()
+      .getAll(filters)
       .map(({ employeeId, voucherId, ...order }) => {
         const { companyId, ...employee } =
           this.employeeService.getById(employeeId);
