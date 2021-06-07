@@ -2,11 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Company {
-  id: ID!
-  title: String!
-}
-
 type Partner {
   id: ID!
   name: String!
@@ -38,12 +33,38 @@ type Employee {
   orders: [Order!]!
 }
 
+type Company {
+  id: ID!
+  title: String!
+  employees: [Employee!]!
+}
+
 type Query {
   """App info."""
   appInfo: String!
-  companies: [Company!]!
-  employees: [Employee!]!
-  orders: [Order!]!
+  companies(id: Float, title: String, employees: EmployeeFilterInput): [Company!]!
+  employees(id: Float, name: Float, budget: Float, companyId: Float, orders: OrderFilterInput): [Employee!]!
+  orders(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): [Order!]!
   vouchers: [Voucher!]!
   partners: [Partner!]!
+}
+
+input EmployeeFilterInput {
+  id: Float
+  name: Float
+  budget: Float
+  companyId: Float
+  orders: OrderFilterInput
+}
+
+input OrderFilterInput {
+  id: Float
+  employeeId: Float
+  voucherId: Float
+  date: DateFilterInput
+}
+
+input DateFilterInput {
+  from: String!
+  to: String
 }

@@ -18,12 +18,23 @@ export default abstract class FileSourceDatabaseService<Raw extends BaseModel> {
     }
 
     // filter results based on the provided criteria
-    // for now, we will just check for direct equality
-    // @TODO - add support for callback functions
+    // for now, we will just check for direct equality, function
     // @TODO - add support for arrays
     return results.filter((result) => {
       return Object.keys(filters).every((field) => {
-        return result[field as keyof Raw] === filters[field as keyof Raw];
+        const filter = filters[field as keyof Raw];
+        if (typeof filter === 'undefined') {
+          // if for some reason a filter criteria is provided but it has no value,
+          // treat it as positive
+          return true;
+        }
+        const value = result[field as keyof Raw];
+
+        // add support for filtering with a callback function
+        if (typeof filter === 'function') {
+          return filter(value);
+        }
+        return value === filter;
       });
     });
   }

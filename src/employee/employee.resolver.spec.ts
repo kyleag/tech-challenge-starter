@@ -34,8 +34,8 @@ describe(EmployeeResolver.name, () => {
 
   describe('get all employees', () => {
     let results: Employee[];
-    it('should return all employees', () => {
-      results = employeeResolver.employees();
+    it('should return all employees', async () => {
+      results = await employeeResolver.employees();
       expect(results.length).toStrictEqual(employees.length);
       results.forEach((result, index) => {
         expect(result.id).toStrictEqual(employees[index].id);
