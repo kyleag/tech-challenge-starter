@@ -2,11 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Company {
-  id: ID!
-  title: String!
-}
-
 type Partner {
   id: ID!
   name: String!
@@ -36,6 +31,12 @@ type Employee {
   budget: Float!
   company: Company!
   orders: [Order!]!
+}
+
+type Company {
+  id: ID!
+  title: String!
+  employees: [Employee!]!
 }
 
 type Query {
