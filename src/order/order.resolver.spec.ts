@@ -27,8 +27,8 @@ describe(OrderResolver.name, () => {
 
   describe('get all orders', () => {
     let results: Order[];
-    it('should return all employees', () => {
-      results = orderResolver.orders();
+    it('should return all employees', async () => {
+      results = await orderResolver.orders();
       expect(results.length).toStrictEqual(orders.length);
       results.forEach((result, index) => {
         expect(result.id).toStrictEqual(orders[index].id);
