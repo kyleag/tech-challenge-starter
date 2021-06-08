@@ -40,6 +40,15 @@ export default abstract class FileSourceDatabaseService<Raw extends BaseModel> {
   }
 
   /**
+   * Gets all of the raw objects from the source data based on the given filter
+   * @param { Partial<{ [key in keyof Raw]: any } } filters optional filters. must be a valid raw model field
+   * @returns {Raw} resulting raw model data
+   */
+  getOne(filters: Partial<{ [key in keyof Raw]: any }> = {}): Raw {
+    return this.getAll(filters).pop() as Raw;
+  }
+
+  /**
    * Gets a raw model by id
    * @param {number} id id of the raw model to retrieve
    * @returns {Raw} resulting model

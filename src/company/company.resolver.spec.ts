@@ -1,5 +1,9 @@
 import companies from '@data/companies';
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  getFirstDayOfMonth,
+  getLastDayOfMonth,
+} from '@src/common/helpers/date-helper';
 import { EmployeeResolver } from '@src/employee/employee.resolver';
 import { EmployeeService } from '@src/employee/employee.service';
 import { OrderResolver } from '@src/order/order.resolver';
@@ -8,11 +12,13 @@ import { PartnerResolver } from '@src/partner/partner.resolver';
 import { PartnerService } from '@src/partner/partner.service';
 import { VoucherResolver } from '@src/voucher/voucher.resolver';
 import { VoucherService } from '@src/voucher/voucher.service';
+import { Company } from './company.model';
 import { CompanyResolver } from './company.resolver';
 import { CompanyService } from './company.service';
 
 describe(CompanyResolver.name, () => {
   let companyResolver: CompanyResolver;
+  let orderResolver: OrderResolver;
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,6 +39,7 @@ describe(CompanyResolver.name, () => {
     }).compile();
 
     companyResolver = moduleRef.get<CompanyResolver>(CompanyResolver);
+    orderResolver = moduleRef.get<OrderResolver>(OrderResolver);
   });
 
   describe('get all companies', () => {
@@ -78,6 +85,69 @@ describe(CompanyResolver.name, () => {
           ).toBe(true);
         });
       });
+    });
+  });
+
+  describe('get a list of employees of specified remaining budget per company', () => {
+    it('should retrieve a list of employees for the current month of a specific budget', async () => {
+      const budget = 10;
+      const results: Company[] =
+        await companyResolver.companiesEmployeesOfRemaingBudget({
+          budget,
+        });
+      const resultToCheck = [...results].slice(-1).pop();
+      for (const employee of resultToCheck?.employees ?? []) {
+        // retrieve a list of orders for the current employee in the current month
+        const orders = await orderResolver.orders({
+          employeeId: employee.id,
+          date: {
+            from: getFirstDayOfMonth().toString(),
+          },
+        });
+        const total = orders.reduce((accumulator, current) => {
+          accumulator += current.voucher.amount;
+          return accumulator;
+        }, 0);
+        const remaining = employee.budget - total;
+        expect(remaining).toBeGreaterThan(budget);
+      }
+    });
+    it('should retrieve a list of employees for specified month, year of a specific budget', async () => {
+      const budget = 10;
+      const month = 1; // january
+      const year = 2020;
+      const result: Company[] =
+        await companyResolver.companiesEmployeesOfRemaingBudget({
+          budget,
+          month,
+          year,
+        });
+
+      // get a company to check the results
+      // based on the static data, company `1` will yield a result with 1 employee and 1 order
+      const resultToCheck = result
+        .filter((company) => company.id === 1)
+        .shift() as Company;
+      expect(resultToCheck.employees).not.toBeUndefined();
+      expect(resultToCheck.employees).toHaveLength(1);
+
+      const dateFrom = `${year}-${month}-01`;
+      for (const employee of resultToCheck?.employees ?? []) {
+        // retrieve a list of orders for the current employee in the specified month, year
+        const orders = await orderResolver.orders({
+          employeeId: employee.id,
+          date: {
+            from: dateFrom,
+            to: getLastDayOfMonth(new Date(dateFrom)).toString(),
+          },
+        });
+        const total = orders.reduce((accumulator, current) => {
+          accumulator += current.voucher.amount;
+          return accumulator;
+        }, 0);
+        const remaining = employee.budget - total;
+        expect(remaining).toBeGreaterThan(budget);
+      }
     });
   });
 });

@@ -61,3 +61,95 @@ query AppInfo {
   appInfo
 }
 ```
+
+### Company
+
+#### List of Companies
+
+```graphql
+query {
+  companies {
+    id
+    title
+    employees {
+      name
+      orders {
+        id
+        date
+      }
+    }
+  }
+}
+```
+
+#### Filtered List of Companies
+
+```graphql
+query {
+  companies(id: number, title: string, employees: EmployeeFilterInput) {
+    id
+    title
+    employees {
+      name
+      orders {
+        id
+        date
+        voucher {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+### Companies of Remaining Budget
+
+```graphql
+query {
+  companiesEmployeesOfRemaingBudget(
+    budget: number # in euros
+    month: number # 1 - January, 12 - December
+    year: number
+  ) {
+    id
+    title
+    employees {
+      name
+      orders {
+        id
+        date
+        voucher {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+### Company of Remaining Budget
+
+```graphql
+query {
+  companyEmployeesOfRemaingBudget(
+    id: number # company id
+    budget: number # in euros
+    month: number # 1 - January, 12 - December
+    year: number
+  ) {
+    id
+    title
+    employees {
+      name
+      orders {
+        id
+        date
+        voucher {
+          amount
+        }
+      }
+    }
+  }
+}
+```
