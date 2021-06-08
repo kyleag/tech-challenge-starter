@@ -299,6 +299,12 @@ const MOCK_ORDERS = [
     employeeId: 8,
     voucherId: 1,
   },
+  {
+    id: 51,
+    date: new Date('2020-01-06'),
+    employeeId: 1,
+    voucherId: 6,
+  },
 ];
 
 export default MOCK_ORDERS;

@@ -13,4 +13,7 @@ export class EmployeeRaw extends BaseModel {
 
   @Field()
   companyId!: number;
+
+  @Field()
+  salary!: number;
 }

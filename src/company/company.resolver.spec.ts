@@ -150,4 +150,77 @@ describe(CompanyResolver.name, () => {
       }
     });
   });
+
+  describe('retrieve a list of employees (including the spending breakdown) for a certain company', () => {
+    it('should retrieve employees with spending for a certain company', async () => {
+      // data to check is based on the provided static data that will yield the results that can be used to test
+      // if the calculation works
+      const companyIdToCheck = 1;
+      const month = 1;
+      const year = 2020;
+      const result = await companyResolver.companyEmployeesSpendingBreakdown({
+        id: companyIdToCheck,
+        month,
+        year,
+      });
+
+      const dateFrom = `${year}-${month}-01`;
+      for (const employee of result.employees) {
+        const orders = (
+          await orderResolver.orders({
+            employeeId: employee.id,
+            date: {
+              from: dateFrom,
+              to: getLastDayOfMonth(new Date(dateFrom)).toString(),
+            },
+          })
+        ).sort((first, second) => {
+          // make sure to sort by date
+          return first.date < second.date ? 1 : 0;
+        });
+
+        // calculate the spending breakdown manually
+        const budget = employee.budget;
+        const spendingBreakdown = orders.reduce(
+          (breakdown, order) => {
+            const amount = order.voucher.amount;
+
+            // always increment the total with the amount
+            breakdown.total += amount;
+
+            // make sure tax free wont exceed the budget
+            if (breakdown.taxFree !== budget) {
+              // make sure to only add amount that wont exceed the budget
+              // excess should be added as taxable
+              if (breakdown.taxFree + amount <= budget) {
+                breakdown.taxFree += amount;
+              } else {
+                const excess = breakdown.taxFree + amount - budget;
+                breakdown.taxFree = budget;
+                breakdown.taxable = excess;
+
+                // deduct the excess taxable amount to the net salary
+                breakdown.netSalary -= excess;
+              }
+            } else {
+              // add amounts as taxable if budget has been exhausted
+              // then also deduct it to the net salary
+              breakdown.taxable += amount;
+              breakdown.netSalary -= amount;
+            }
+            return breakdown;
+          },
+          {
+            total: 0,
+            taxFree: 0,
+            taxable: 0,
+            netSalary: employee.salary,
+          },
+        );
+
+        // check the calculated breakdown against the result
+        expect(employee.spendingBreakdown).toEqual(spendingBreakdown);
+      }
+    });
+  });
 });
