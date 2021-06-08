@@ -4,10 +4,11 @@ import FileSourceDatabaseService from '@src/common/services/database/file-source
 import DateFilter from '@src/common/types/date-filter';
 import { OrderRaw } from './dto/order.raw';
 
-interface OrderFilter extends Partial<Omit<OrderRaw, 'date'>> {
+interface OrderFilter
+  extends Partial<Omit<{ [key in keyof OrderRaw]: any }, 'date'>> {
   date?: DateFilter;
 }
-interface OrderFilterDateCallback extends Partial<Omit<OrderRaw, 'date'>> {
+interface OrderFilterDateCallback extends Partial<Omit<OrderFilter, 'date'>> {
   date?: DateFilterCallback;
 }
 type DateFilterCallback = (dateToCheck: Date) => boolean;

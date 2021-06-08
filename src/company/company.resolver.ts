@@ -1,7 +1,8 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { EMPLOYEE_MAXIMUM_NONTAXABLE_BUDGET } from '@src/common/constants/budget';
 import { getLastDayOfMonth } from '@src/common/helpers/date-helper';
+import { Employee } from '@src/employee/employee.model';
 import { EmployeeResolver } from '@src/employee/employee.resolver';
+import { Order } from '@src/order/order.model';
 import { Company } from './company.model';
 import { CompanyService } from './company.service';
 import { CompanyEmployeesBudgetFilterArgs } from './dto/company-employees-budget-filter.args';
@@ -39,39 +40,48 @@ export class CompanyResolver {
       budget = 0,
       month = new Date().getMonth() + 1, // since january starts at 0
       year = new Date().getFullYear(),
+      ...companyFilter
     }: CompanyEmployeesBudgetFilterArgs,
   ): Promise<Company[]> {
     // get the start, end date for the specified month of the current year
     const dateFrom = new Date(`${year}-${month}-01`);
-    const dateTo = getLastDayOfMonth(dateFrom).toString();
+    const dateTo = getLastDayOfMonth(dateFrom);
+    const rawCompanies =
+      this.companyService.getAllCompaniesEmployeesOfRemainingBudget({
+        ...companyFilter,
+        budget,
+        dateFrom: dateFrom.toString(),
+        dateTo: dateTo.toString(),
+      });
 
-    // @TODO - move business logic to `service` level?
-    // then filter the companies' employees to only include orders for the month specified
-    const companies = await this.companies({
-      employees: {
-        orders: {
-          date: {
-            from: dateFrom.toString(),
-            to: dateTo.toString(),
-          },
-        },
-      },
-    });
-
-    // only include companies' employees with more than the specified budget remaining
-    return companies.map((company) => {
-      return {
+    // now convert the resulting raw data to models (with their related submodels)
+    const companies: Company[] = [];
+    for (const rawCompany of rawCompanies) {
+      const { employees: employeesList, ...company } = rawCompany;
+      const employees: Employee[] = [];
+      for (const employeeListData of employeesList) {
+        // NOTE: the resulting employee model data includes the *unfiltered* orders
+        // since we cannot filter orders by a callback function via `resolver`
+        // since it is indented to be executed on a graphql request
+        // and it *does not* accept callback functions as an argument
+        const employee = await this.employeeResolver.employee({
+          id: employeeListData.id,
+        });
+        const orders = employee.orders ?? [];
+        employees.push({
+          ...employee,
+          // retrieve the correct filtered orders for the employee
+          // since we cannot filter orders with a callback function via a resolver
+          orders: orders.filter((order) => {
+            return employeeListData.orderIds.includes(order.id);
+          }) as Order[],
+        } as Employee);
+      }
+      companies.push({
         ...company,
-        employees: company.employees?.filter((employee) => {
-          const orders = employee?.orders ?? [];
-          const total = orders.reduce((acc, curr) => {
-            acc += curr.voucher.amount;
-            return acc;
-          }, 0);
-          const remaining = employee.budget - total;
-          return remaining > budget;
-        }),
-      };
-    });
+        employees,
+      });
+    }
+    return companies;
   }
 }
