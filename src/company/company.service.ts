@@ -4,16 +4,24 @@ import FileSourceDatabaseService from '@src/common/services/database/file-source
 import { EmployeeService } from '@src/employee/employee.service';
 import { OrderService } from '@src/order/order.service';
 import { VoucherService } from '@src/voucher/voucher.service';
-import { CompanyEmployeesOfRemainingBudgetResponse } from './dto/company-employees-budget.response';
+import { CompanyRawEmployeesOfRemainingBudget } from './dto/company-raw-employees-budget';
 import { CompanyFilterArgs } from './dto/company-filter.args';
 import { CompanyRawEmployeeOrderList } from './dto/company-raw-employee-order-list';
 import { CompanyRaw } from './dto/company.raw';
+import { CompanyRawEmployeesSpendingBreakdown } from './dto/company-raw-employees-spending-breakdown';
+import { getLastDayOfMonth } from '@src/common/helpers/date-helper';
+import { CompanyRawEmployeeOrderSpendingBreakdownList } from './dto/company-raw-employee-order-spending-breakdown-list';
 
 interface GetAllCompaniesEmployeesOfRemainingBudgetArgs
   extends Partial<Omit<CompanyFilterArgs, 'employees'>> {
   budget: number;
   dateFrom: string;
   dateTo: string;
+}
+
+interface GetCompanyEmployeesSpendingBreakdownArgs {
+  id: number;
+  dateFrom: string;
 }
 
 @Injectable()
@@ -30,7 +38,7 @@ export class CompanyService extends FileSourceDatabaseService<CompanyRaw> {
     dateFrom,
     dateTo,
     ...companyFilters
-  }: GetAllCompaniesEmployeesOfRemainingBudgetArgs): CompanyEmployeesOfRemainingBudgetResponse[] {
+  }: GetAllCompaniesEmployeesOfRemainingBudgetArgs): CompanyRawEmployeesOfRemainingBudget[] {
     // get related employees first
     const employees = this.employeeService.getAll({
       companyId: companyFilters.id,
@@ -70,7 +78,82 @@ export class CompanyService extends FileSourceDatabaseService<CompanyRaw> {
             }
             return employeeList;
           }, [] as CompanyRawEmployeeOrderList[]),
-      } as CompanyEmployeesOfRemainingBudgetResponse;
+      } as CompanyRawEmployeesOfRemainingBudget;
     });
+  }
+
+  getCompanyEmployeesSpendingBreakdown({
+    id,
+    dateFrom,
+  }: GetCompanyEmployeesSpendingBreakdownArgs): CompanyRawEmployeesSpendingBreakdown {
+    // get related employees first
+    const employees = this.employeeService.getAll({
+      companyId: id,
+    });
+
+    // get related orders
+    const dateTo = getLastDayOfMonth(new Date(dateFrom)).toString();
+    const orders = this.orderService.getAll({
+      employeeId: (employeeId: number) => {
+        return employees.map((employee) => employee.id).includes(employeeId);
+      },
+      date: {
+        from: dateFrom,
+        to: dateTo,
+      },
+    });
+    const companyRaw = this.getById(id);
+    return {
+      ...companyRaw,
+      employees: employees.reduce((employeeList, employee) => {
+        // get orders under the current employee
+        const employeeOrders = orders.filter(
+          (order) => order.employeeId === employee.id,
+        );
+        const budget = employee.budget;
+        const spendingBreakdown = employeeOrders.reduce(
+          (breakdown, order) => {
+            const amount = this.voucherService.getById(order.voucherId).amount;
+
+            // always increment the total with the amount
+            breakdown.total += amount;
+
+            // make sure tax free wont exceed the budget
+            if (breakdown.taxFree !== budget) {
+              // make sure to only add amount that wont exceed the budget
+              // excess should be added as taxable
+              if (breakdown.taxFree + amount <= budget) {
+                breakdown.taxFree += amount;
+              } else {
+                const excess = breakdown.taxFree + amount - budget;
+                breakdown.taxFree = budget;
+                breakdown.taxable = excess;
+
+                // deduct the excess taxable amount to the net salary
+                breakdown.netSalary -= excess;
+              }
+            } else {
+              // add amounts as taxable if budget has been exhausted
+              // then also deduct it to the net salary
+              breakdown.taxable += amount;
+              breakdown.netSalary -= amount;
+            }
+            return breakdown;
+          },
+          {
+            total: 0,
+            taxFree: 0,
+            taxable: 0,
+            netSalary: employee.salary,
+          },
+        );
+        employeeList.push({
+          id: employee.id,
+          orderIds: employeeOrders.map((order) => order.id),
+          spendingBreakdown,
+        });
+        return employeeList;
+      }, [] as CompanyRawEmployeeOrderSpendingBreakdownList[]),
+    } as CompanyRawEmployeesSpendingBreakdown;
   }
 }

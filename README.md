@@ -153,3 +153,37 @@ query {
   }
 }
 ```
+
+### Company Employees Spending Breakdown
+
+```graphql
+query {
+  companyEmployeesSpendingBreakdown(
+    id: number # company id
+    month: number # 1 - January, 12 - December
+    year: number
+  ) {
+    id
+    title
+    employees {
+      id
+      name
+      budget
+      salary
+      orders {
+        id
+        date
+        voucher {
+          amount
+        }
+      }
+      spendingBreakdown {
+        total
+        taxFree
+        taxable
+        netSalary
+      }
+    }
+  }
+}
+```
