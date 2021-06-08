@@ -43,6 +43,7 @@ type Query {
   """App info."""
   appInfo: String!
   companies(id: Float, title: String, employees: EmployeeFilterInput): [Company!]!
+  companiesEmployeesOfRemaingBudget(budget: Float = 0, month: Float, year: Float): [Company!]!
   employees(id: Float, name: Float, budget: Float, companyId: Float, orders: OrderFilterInput): [Employee!]!
   orders(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): [Order!]!
   vouchers: [Voucher!]!
