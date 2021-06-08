@@ -127,3 +127,29 @@ query {
   }
 }
 ```
+
+### Company of Remaining Budget
+
+```graphql
+query {
+  companyEmployeesOfRemaingBudget(
+    id: number # company id
+    budget: number # in euros
+    month: number # 1 - January, 12 - December
+    year: number
+  ) {
+    id
+    title
+    employees {
+      name
+      orders {
+        id
+        date
+        voucher {
+          amount
+        }
+      }
+    }
+  }
+}
+```

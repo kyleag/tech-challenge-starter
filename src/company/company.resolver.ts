@@ -7,6 +7,7 @@ import { Company } from './company.model';
 import { CompanyService } from './company.service';
 import { CompanyEmployeesBudgetFilterArgs } from './dto/company-employees-budget-filter.args';
 import { CompanyFilterArgs } from './dto/company-filter.args';
+import { CompanySingleEmployeesBudgetFilterArgs } from './dto/company-single-employees-budget-filter.args';
 
 @Resolver('Company')
 export class CompanyResolver {
@@ -83,5 +84,15 @@ export class CompanyResolver {
       });
     }
     return companies;
+  }
+
+  @Query(() => Company)
+  async companyEmployeesOfRemaingBudget(
+    @Args()
+    filter: CompanySingleEmployeesBudgetFilterArgs,
+  ): Promise<Company> {
+    return (
+      await this.companiesEmployeesOfRemaingBudget(filter)
+    ).shift() as Company;
   }
 }

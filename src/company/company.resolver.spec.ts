@@ -1,6 +1,5 @@
 import companies from '@data/companies';
 import { Test, TestingModule } from '@nestjs/testing';
-import { EMPLOYEE_MAXIMUM_NONTAXABLE_BUDGET } from '@src/common/constants/budget';
 import { getFirstDayOfMonth } from '@src/common/helpers/date-helper';
 import { EmployeeResolver } from '@src/employee/employee.resolver';
 import { EmployeeService } from '@src/employee/employee.service';
