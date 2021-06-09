@@ -1,8 +1,11 @@
 import orders from '@data/orders';
+import { forwardRef } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CompanyModule } from '@src/company/company.module';
 import { CompanyService } from '@src/company/company.service';
+import { EmployeeModule } from '@src/employee/employee.module';
 import { EmployeeService } from '@src/employee/employee.service';
-import { PartnerService } from '@src/partner/partner.service';
+import { VoucherModule } from '@src/voucher/voucher.module';
 import { VoucherService } from '@src/voucher/voucher.service';
 import { Order } from './order.model';
 import { OrderResolver } from './order.resolver';
@@ -18,7 +21,11 @@ describe(OrderResolver.name, () => {
         EmployeeService,
         VoucherService,
         CompanyService,
-        PartnerService,
+      ],
+      imports: [
+        forwardRef(() => EmployeeModule),
+        forwardRef(() => VoucherModule),
+        forwardRef(() => CompanyModule),
       ],
     }).compile();
 

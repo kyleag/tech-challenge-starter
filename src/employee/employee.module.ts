@@ -1,10 +1,9 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { CompanyModule } from '@src/company/company.module';
 import { CompanyService } from '@src/company/company.service';
+import { OrderModule } from '@src/order/order.module';
 import { OrderResolver } from '@src/order/order.resolver';
 import { OrderService } from '@src/order/order.service';
-import { PartnerResolver } from '@src/partner/partner.resolver';
-import { PartnerService } from '@src/partner/partner.service';
-import { VoucherResolver } from '@src/voucher/voucher.resolver';
 import { VoucherService } from '@src/voucher/voucher.service';
 import { EmployeeResolver } from './employee.resolver';
 import { EmployeeService } from './employee.service';
@@ -17,9 +16,7 @@ import { EmployeeService } from './employee.service';
     OrderResolver,
     OrderService,
     VoucherService,
-    VoucherResolver,
-    PartnerService,
-    PartnerResolver,
   ],
+  imports: [forwardRef(() => CompanyModule), forwardRef(() => OrderModule)],
 })
 export class EmployeeModule {}

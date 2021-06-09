@@ -1,12 +1,12 @@
 import employees from '@data/employees';
 import orders from '@data/orders';
+import { forwardRef } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CompanyModule } from '@src/company/company.module';
 import { CompanyService } from '@src/company/company.service';
+import { OrderModule } from '@src/order/order.module';
 import { OrderResolver } from '@src/order/order.resolver';
 import { OrderService } from '@src/order/order.service';
-import { PartnerResolver } from '@src/partner/partner.resolver';
-import { PartnerService } from '@src/partner/partner.service';
-import { VoucherResolver } from '@src/voucher/voucher.resolver';
 import { VoucherService } from '@src/voucher/voucher.service';
 import { Employee } from './employee.model';
 import { EmployeeResolver } from './employee.resolver';
@@ -23,10 +23,8 @@ describe(EmployeeResolver.name, () => {
         OrderResolver,
         OrderService,
         VoucherService,
-        VoucherResolver,
-        PartnerService,
-        PartnerResolver,
       ],
+      imports: [forwardRef(() => CompanyModule), forwardRef(() => OrderModule)],
     }).compile();
 
     employeeResolver = moduleRef.get<EmployeeResolver>(EmployeeResolver);

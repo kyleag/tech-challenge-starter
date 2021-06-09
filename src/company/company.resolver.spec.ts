@@ -1,17 +1,17 @@
 import companies from '@data/companies';
+import { forwardRef } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   getFirstDayOfMonth,
   getLastDayOfMonth,
 } from '@src/common/helpers/date-helper';
 import { taxFactory } from '@src/common/helpers/tax-helper';
+import { EmployeeModule } from '@src/employee/employee.module';
 import { EmployeeResolver } from '@src/employee/employee.resolver';
 import { EmployeeService } from '@src/employee/employee.service';
+import { OrderModule } from '@src/order/order.module';
 import { OrderResolver } from '@src/order/order.resolver';
 import { OrderService } from '@src/order/order.service';
-import { PartnerResolver } from '@src/partner/partner.resolver';
-import { PartnerService } from '@src/partner/partner.service';
-import { VoucherResolver } from '@src/voucher/voucher.resolver';
 import { VoucherService } from '@src/voucher/voucher.service';
 import { Company } from './company.model';
 import { CompanyResolver } from './company.resolver';
@@ -23,19 +23,17 @@ describe(CompanyResolver.name, () => {
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
-        // @TODO - import `EmployeeModule` instead?
-        // can't seem to make it work, though
-        // sticking with this approach for now
         CompanyService,
         CompanyResolver,
-        EmployeeResolver,
-        EmployeeService,
-        OrderResolver,
         OrderService,
+        EmployeeService,
         VoucherService,
-        VoucherResolver,
-        PartnerService,
-        PartnerResolver,
+        EmployeeResolver,
+        OrderResolver,
+      ],
+      imports: [
+        forwardRef(() => EmployeeModule),
+        forwardRef(() => OrderModule),
       ],
     }).compile();
 

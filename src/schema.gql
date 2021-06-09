@@ -5,13 +5,14 @@
 type Partner {
   id: ID!
   name: String!
+  vouchers: [Voucher!]!
+  revenue: Float!
 }
 
 type Voucher {
   id: ID!
   amount: Float!
   taxType: String!
-  partner: Partner!
   orders: [Order!]!
   revenue: Float!
 }
@@ -78,7 +79,8 @@ type Query {
   orders(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): [Order!]!
   order(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): Order!
   vouchers(id: Float, amount: Float, partnerId: Float, taxType: String): [Voucher!]!
-  partners: [Partner!]!
+  voucher(id: Float, amount: Float, partnerId: Float, taxType: String): Voucher!
+  partners(id: Float, name: String): [Partner!]!
   partner(id: Float, name: String): Partner!
 }
 

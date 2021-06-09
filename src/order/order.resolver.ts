@@ -4,8 +4,6 @@ import { CompanyService } from '@src/company/company.service';
 import { OrderFilterArgs } from '@src/order/dto/order-filter.args';
 import { Employee } from '@src/employee/employee.model';
 import { EmployeeService } from '@src/employee/employee.service';
-import { Partner } from '@src/partner/partner.model';
-import { PartnerService } from '@src/partner/partner.service';
 import { Voucher } from '@src/voucher/voucher.model';
 import { VoucherService } from '@src/voucher/voucher.service';
 import { Order } from './order.model';
@@ -19,7 +17,6 @@ export class OrderResolver {
     private readonly employeeService: EmployeeService,
     private readonly voucherService: VoucherService,
     private readonly companyService: CompanyService,
-    private readonly partnerService: PartnerService,
   ) {}
 
   @Query(() => [Order])
@@ -52,7 +49,6 @@ export class OrderResolver {
       } as Employee,
       voucher: {
         ...voucher,
-        partner: this.partnerService.getById(partnerId) as Partner,
       } as Voucher,
     } as Order;
   }

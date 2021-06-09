@@ -5,9 +5,6 @@ import { VoucherRaw } from './dto/voucher.raw';
 
 @ObjectType('Voucher')
 export class Voucher extends OmitType(VoucherRaw, ['partnerId'] as const) {
-  @Field(() => Partner)
-  partner!: Partner;
-
   @Field(() => [Order])
   orders!: Order[];
 

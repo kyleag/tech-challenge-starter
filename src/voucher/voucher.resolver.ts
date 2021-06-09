@@ -1,7 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { Order } from '@src/order/order.model';
 import { OrderResolver } from '@src/order/order.resolver';
-import { PartnerResolver } from '@src/partner/partner.resolver';
 import { VoucherFilterArgs } from './dto/voucher-filter-args';
 import { Voucher } from './voucher.model';
 import { VoucherService } from './voucher.service';
@@ -10,7 +9,6 @@ import { VoucherService } from './voucher.service';
 export class VoucherResolver {
   constructor(
     private readonly voucherService: VoucherService,
-    private readonly partnerResolver: PartnerResolver,
     private readonly orderResolver: OrderResolver,
   ) {}
 
@@ -29,11 +27,13 @@ export class VoucherResolver {
       vouchers.push({
         ...voucher,
         orders,
-        partner: this.partnerResolver.partner({
-          id: partnerId,
-        }),
       });
     }
     return vouchers;
+  }
+
+  @Query(() => Voucher)
+  async voucher(@Args() filters: VoucherFilterArgs): Promise<Voucher> {
+    return (await this.vouchers(filters)).shift() as Voucher;
   }
 }
