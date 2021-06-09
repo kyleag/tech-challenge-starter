@@ -77,7 +77,7 @@ type Query {
   employee(id: Float, name: Float, budget: Float, companyId: Float, orders: OrderFilterInput): Employee!
   orders(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): [Order!]!
   order(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): Order!
-  vouchers: [Voucher!]!
+  vouchers(id: Float, amount: Float, partnerId: Float, taxType: String): [Voucher!]!
   partners: [Partner!]!
   partner(id: Float, name: String): Partner!
 }

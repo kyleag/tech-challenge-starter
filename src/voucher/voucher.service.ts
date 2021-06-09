@@ -11,8 +11,8 @@ export class VoucherService extends FileSourceDatabaseService<VoucherRaw> {
     super(vouchers);
   }
 
-  getAll(): VoucherRawResponse[] {
-    const vouchersRaw = super.getAll();
+  getAll(filters: Partial<VoucherRaw>): VoucherRawResponse[] {
+    const vouchersRaw = super.getAll(filters);
     return vouchersRaw.map((voucherRaw) => {
       // retrieve related orders
       const ordersRaw = this.orderService.getAll({
