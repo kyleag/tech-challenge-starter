@@ -1,10 +1,7 @@
-import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Query, Resolver } from '@nestjs/graphql';
 import { Order } from '@src/order/order.model';
 import { OrderResolver } from '@src/order/order.resolver';
-import { Partner } from '@src/partner/partner.model';
 import { PartnerResolver } from '@src/partner/partner.resolver';
-import { PartnerService } from '@src/partner/partner.service';
-import { VoucherRaw } from './dto/voucher.raw';
 import { Voucher } from './voucher.model';
 import { VoucherService } from './voucher.service';
 
