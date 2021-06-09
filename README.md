@@ -187,3 +187,26 @@ query {
   }
 }
 ```
+
+### Vouchers
+
+#### List of Vouchers
+
+```graphql
+query {
+  vouchers(
+    id: number # voucher id
+  ) {
+    id
+    amount
+    revenue
+    orders {
+      id
+      date
+      employee {
+        name
+      }
+    }
+  }
+}
+```
