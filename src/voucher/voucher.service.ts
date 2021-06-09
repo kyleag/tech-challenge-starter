@@ -18,9 +18,13 @@ export class VoucherService extends FileSourceDatabaseService<VoucherRaw> {
       const ordersRaw = this.orderService.getAll({
         voucherId: voucherRaw.id,
       });
+
+      // we'll assume that every order only contains 1 voucher
+      const revenue = ordersRaw.length * voucherRaw.amount;
       return {
         ...voucherRaw,
         orderIds: ordersRaw.map((order) => order.id),
+        revenue,
       };
     });
   }

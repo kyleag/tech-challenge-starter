@@ -2,7 +2,6 @@ import vouchers from '@data/vouchers';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CompanyService } from '@src/company/company.service';
 import { EmployeeService } from '@src/employee/employee.service';
-import { Order } from '@src/order/order.model';
 import { OrderResolver } from '@src/order/order.resolver';
 import { OrderService } from '@src/order/order.service';
 import { PartnerResolver } from '@src/partner/partner.resolver';
@@ -13,7 +12,7 @@ import { VoucherService } from './voucher.service';
 
 describe(VoucherResolver.name, () => {
   let voucherResolver: VoucherResolver;
-  let orderService: OrderService;
+  let orderResolver: OrderResolver;
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
@@ -21,15 +20,15 @@ describe(VoucherResolver.name, () => {
         VoucherService,
         PartnerService,
         PartnerResolver,
-        OrderService,
         OrderResolver,
+        OrderService,
         EmployeeService,
         CompanyService,
       ],
     }).compile();
 
     voucherResolver = moduleRef.get<VoucherResolver>(VoucherResolver);
-    orderService = moduleRef.get<OrderService>(OrderService);
+    orderResolver = moduleRef.get<OrderResolver>(OrderResolver);
   });
 
   describe('get all vouchers', () => {
@@ -52,14 +51,28 @@ describe(VoucherResolver.name, () => {
     });
 
     it('should correctly retrieve the related orders', () => {
-      results.forEach((voucher) => {
+      results.forEach(async (voucher) => {
         // retrieve related orders for the current voucher
-        const orders = orderService.getAll({
+        const orders = await orderResolver.orders({
           voucherId: voucher.id,
         });
         const resultingOrderIds = voucher.orders.map((order) => order.id);
         const retrievedOrderIds = orders.map((order) => order.id);
         expect(resultingOrderIds.sort()).toEqual(retrievedOrderIds.sort());
+      });
+    });
+
+    it('should calculate the revenue per voucher', () => {
+      results.forEach(async (voucher) => {
+        // manually calculate the total revenue
+        const orders = await orderResolver.orders({
+          voucherId: voucher.id,
+        });
+        const calculatedRevenue = orders.reduce((total, order) => {
+          total += order.voucher.amount;
+          return total;
+        }, 0);
+        expect(voucher.revenue).toStrictEqual(calculatedRevenue);
       });
     });
   });
