@@ -8,16 +8,20 @@ interface TaxMap {
 
 /**
  * Factory method that instantiates the appropriate tax object for the given type
- * @param {string} type name of the type of tax to instantiate
+ * @param {string} type optional name of the type of tax to instantiate. defaults to 'default'
  * @returns {TaxType} instantiated tax type
  */
-export const taxFactory = (type: string): TaxType => {
+export const taxFactory = (type = 'default'): TaxType => {
   const taxMap: TaxMap = {
     germanyDefault: () => {
       return new GermanyDefaultTax();
     },
+    default: () => {
+      return new DefaultTax();
+    },
   };
-  return taxMap[type as keyof TaxMap]
-    ? taxMap[type as keyof TaxMap]()
-    : new DefaultTax(); // fall back to default if no tax of provided type can be created
+
+  // fall back to default if no tax of provided type can be created
+  const typeToUse = taxMap[type as keyof TaxMap] ? type : 'default';
+  return taxMap[typeToUse as keyof TaxMap]();
 };
