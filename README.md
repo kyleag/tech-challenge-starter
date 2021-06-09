@@ -187,3 +187,51 @@ query {
   }
 }
 ```
+
+### Vouchers
+
+#### List of Vouchers
+
+```graphql
+query {
+  vouchers(
+    id: number # voucher id
+  ) {
+    id
+    amount
+    revenue
+    orders {
+      id
+      date
+      employee {
+        name
+      }
+    }
+  }
+}
+```
+
+### Partners
+
+#### List of Partners
+
+```graphql
+query {
+  partners(
+    id: number # partner id
+  ) {
+    name
+    revenue
+    vouchers {
+      amount
+      orders {
+        id
+        date
+        employee {
+          name
+        }
+      }
+    }
+  }
+}
+```
