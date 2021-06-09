@@ -10,4 +10,7 @@ export class VoucherRaw extends BaseModel {
 
   @Field()
   partnerId!: number;
+
+  @Field()
+  taxType!: string;
 }

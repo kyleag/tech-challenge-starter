@@ -4,6 +4,7 @@ import {
   getFirstDayOfMonth,
   getLastDayOfMonth,
 } from '@src/common/helpers/date-helper';
+import { taxFactory } from '@src/common/helpers/tax-helper';
 import { EmployeeResolver } from '@src/employee/employee.resolver';
 import { EmployeeService } from '@src/employee/employee.service';
 import { OrderResolver } from '@src/order/order.resolver';
@@ -188,6 +189,9 @@ describe(CompanyResolver.name, () => {
             // always increment the total with the amount
             breakdown.total += amount;
 
+            // instantiate the corresponding tax rule
+            const taxType = taxFactory(order.voucher.taxType);
+
             // make sure tax free wont exceed the budget
             if (breakdown.taxFree !== budget) {
               // make sure to only add amount that wont exceed the budget
@@ -199,14 +203,14 @@ describe(CompanyResolver.name, () => {
                 breakdown.taxFree = budget;
                 breakdown.taxable = excess;
 
-                // deduct the excess taxable amount to the net salary
-                breakdown.netSalary -= excess;
+                // deduct the tax amount of the excess to the salary
+                breakdown.netSalary -= taxType.calculate(excess);
               }
             } else {
               // add amounts as taxable if budget has been exhausted
-              // then also deduct it to the net salary
+              // then also deduct the tax amount to the net salary
               breakdown.taxable += amount;
-              breakdown.netSalary -= amount;
+              breakdown.netSalary -= taxType.calculate(amount);
             }
             return breakdown;
           },
