@@ -12,7 +12,7 @@ type Voucher {
   amount: Float!
   taxType: String!
   partner: Partner!
-  orders: Order!
+  orders: [Order!]!
   revenue: Float!
 }
 

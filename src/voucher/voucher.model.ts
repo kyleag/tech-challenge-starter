@@ -8,7 +8,7 @@ export class Voucher extends OmitType(VoucherRaw, ['partnerId'] as const) {
   @Field(() => Partner)
   partner!: Partner;
 
-  @Field(() => Order)
+  @Field(() => [Order])
   orders!: Order[];
 
   @Field(() => Number)
