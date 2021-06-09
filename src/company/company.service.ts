@@ -11,6 +11,7 @@ import { CompanyRaw } from './dto/company.raw';
 import { CompanyRawEmployeesSpendingBreakdown } from './dto/company-raw-employees-spending-breakdown';
 import { getLastDayOfMonth } from '@src/common/helpers/date-helper';
 import { CompanyRawEmployeeOrderSpendingBreakdownList } from './dto/company-raw-employee-order-spending-breakdown-list';
+import { taxFactory } from '@src/common/helpers/tax-helper';
 
 interface GetAllCompaniesEmployeesOfRemainingBudgetArgs
   extends Partial<Omit<CompanyFilterArgs, 'employees'>> {
@@ -113,10 +114,14 @@ export class CompanyService extends FileSourceDatabaseService<CompanyRaw> {
         const budget = employee.budget;
         const spendingBreakdown = employeeOrders.reduce(
           (breakdown, order) => {
-            const amount = this.voucherService.getById(order.voucherId).amount;
+            const { amount, taxType: taxTypeName } =
+              this.voucherService.getById(order.voucherId);
 
             // always increment the total with the amount
             breakdown.total += amount;
+
+            // instantiate the corresponding tax rule
+            const taxType = taxFactory(taxTypeName);
 
             // make sure tax free wont exceed the budget
             if (breakdown.taxFree !== budget) {
@@ -129,14 +134,14 @@ export class CompanyService extends FileSourceDatabaseService<CompanyRaw> {
                 breakdown.taxFree = budget;
                 breakdown.taxable = excess;
 
-                // deduct the excess taxable amount to the net salary
-                breakdown.netSalary -= excess;
+                // deduct the tax amount of the excess to the salary
+                breakdown.netSalary -= taxType.calculate(excess);
               }
             } else {
               // add amounts as taxable if budget has been exhausted
-              // then also deduct it to the net salary
+              // then also deduct the tax amount to the net salary
               breakdown.taxable += amount;
-              breakdown.netSalary -= amount;
+              breakdown.netSalary -= taxType.calculate(amount);
             }
             return breakdown;
           },
