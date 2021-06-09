@@ -12,6 +12,7 @@ type Voucher {
   amount: Float!
   taxType: String!
   partner: Partner!
+  orders: Order!
 }
 
 type Order {
@@ -77,6 +78,7 @@ type Query {
   order(id: Float, employeeId: Float, voucherId: Float, date: DateFilterInput): Order!
   vouchers: [Voucher!]!
   partners: [Partner!]!
+  partner(id: Float, name: String): Partner!
 }
 
 input EmployeeFilterInput {

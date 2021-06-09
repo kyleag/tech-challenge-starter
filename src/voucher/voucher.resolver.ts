@@ -1,5 +1,8 @@
 import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Order } from '@src/order/order.model';
+import { OrderResolver } from '@src/order/order.resolver';
 import { Partner } from '@src/partner/partner.model';
+import { PartnerResolver } from '@src/partner/partner.resolver';
 import { PartnerService } from '@src/partner/partner.service';
 import { VoucherRaw } from './dto/voucher.raw';
 import { Voucher } from './voucher.model';
@@ -9,19 +12,30 @@ import { VoucherService } from './voucher.service';
 export class VoucherResolver {
   constructor(
     private readonly voucherService: VoucherService,
-    private readonly partnerService: PartnerService,
+    private readonly partnerResolver: PartnerResolver,
+    private readonly orderResolver: OrderResolver,
   ) {}
 
   @Query(() => [Voucher])
-  vouchers(): Voucher[] {
-    return this.voucherService.getAll().map(({ partnerId, ...voucher }) => {
-      return {
+  async vouchers(): Promise<Voucher[]> {
+    const vouchersRaw = this.voucherService.getAll();
+    const vouchers: Voucher[] = [];
+    for (const { partnerId, orderIds, ...voucher } of vouchersRaw) {
+      const orders: Order[] = [];
+      for (const orderId of orderIds) {
+        const order = await this.orderResolver.order({
+          id: orderId,
+        });
+        orders.push(order);
+      }
+      vouchers.push({
         ...voucher,
-        // @TODO - use `ResolveField`?
-        // doing this since testing this method *DOES NOT* automatically resolve the fields that need to be resolved
-        // and it seems like the `ResolveField` only works when doing an actual graphql query
-        partner: this.partnerService.getById(partnerId),
-      };
-    });
+        orders,
+        partner: this.partnerResolver.partner({
+          id: partnerId,
+        }),
+      });
+    }
+    return vouchers;
   }
 }
