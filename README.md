@@ -210,3 +210,28 @@ query {
   }
 }
 ```
+
+### Partners
+
+#### List of Partners
+
+```graphql
+query {
+  partners(
+    id: number # partner id
+  ) {
+    name
+    revenue
+    vouchers {
+      amount
+      orders {
+        id
+        date
+        employee {
+          name
+        }
+      }
+    }
+  }
+}
+```
